@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>AI Job Portal</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+    <div class="container">
+
+        <h1>AI Job Portal</h1>
+
+        <!-- =========================
+             POST JOB BUTTON
+        ========================== -->
+
+        <a href="/post-job" class="top-btn">
+            Post New Job
+        </a>
+
+        <!-- =========================
+             SEARCH FORM
+        ========================== -->
+
+        <form method="POST" class="job-form">
+
+            <label>Enter Role</label>
+
+            <input type="text"
+                   name="role"
+                   placeholder="Example: Data Scientist"
+                   required>
+
+            <label>Enter Skills (comma separated)</label>
+
+            <input type="text"
+                   name="skills"
+                   placeholder="python, machine learning, pandas"
+                   required>
+
+            <button type="submit">
+                Find Jobs
+            </button>
+
+        </form>
+
+        <!-- =========================
+             PRIMARY JOBS
+        ========================== -->
+
+        {% if primary_jobs %}
+
+            <h2>Primary Jobs</h2>
+
+            {% for job in primary_jobs %}
+
+                <div class="card">
+
+                    <h3>{{ job.company }}</h3>
+
+                    <p>
+                        <b>Role:</b>
+                        {{ job.role }}
+                    </p>
+
+                    <p>
+                        <b>Matched Skills:</b>
+                        {{ ", ".join(job.matched_skills) }}
+                    </p>
+
+                    <p>
+                        <b>Match %:</b>
+                        {{ job.score }}
+                    </p>
+
+                    <p>
+                        <b>Level:</b>
+                        {{ job.level }}
+                    </p>
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+        <!-- =========================
+             RELATED JOBS
+        ========================== -->
+
+        {% if related_jobs %}
+
+            <h2>Related Jobs</h2>
+
+            {% for job in related_jobs %}
+
+                <div class="card">
+
+                    <h3>{{ job.company }}</h3>
+
+                    <p>
+                        <b>Role:</b>
+                        {{ job.role }}
+                    </p>
+
+                    <p>
+                        <b>Matched Skills:</b>
+                        {{ ", ".join(job.matched_skills) }}
+                    </p>
+
+                    <p>
+                        <b>Match %:</b>
+                        {{ job.score }}
+                    </p>
+
+                    <p>
+                        <b>Level:</b>
+                        {{ job.level }}
+                    </p>
+
+                </div>
+
+            {% endfor %}
+
+        {% endif %}
+
+    </div>
+
+</body>
+
+</html>

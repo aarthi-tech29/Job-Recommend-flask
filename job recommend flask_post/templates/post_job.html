@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Post Job</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Post New Job</h1>
+
+    <a href="/" class="top-btn">
+        Back To Home
+    </a>
+
+    <!-- =========================
+         POST JOB FORM
+    ========================== -->
+
+    <form method="POST" class="job-form">
+
+        <label>Company Name</label>
+
+        <input type="text"
+               name="company"
+               required>
+
+        <label>Job Role</label>
+
+        <input type="text"
+               name="role"
+               required>
+
+        <label>Skills Required</label>
+
+        <input type="text"
+               name="skills"
+               placeholder="python, flask, sql"
+               required>
+
+        <button type="submit">
+            Post Job
+        </button>
+
+    </form>
+
+    <!-- =========================
+         SUCCESS MESSAGE
+    ========================== -->
+
+    {% if message %}
+
+        <div class="success">
+
+            {{ message }}
+
+        </div>
+
+    {% endif %}
+
+    <!-- =========================
+         POSTED JOBS
+    ========================== -->
+
+    <h2>Posted Jobs</h2>
+
+    {% for job in all_jobs %}
+
+        <div class="card">
+
+            <h3>{{ job.company }}</h3>
+
+            <p>
+                <b>Role:</b>
+                {{ job.role }}
+            </p>
+
+            <p>
+                <b>Skills:</b>
+                {{ ", ".join(job.skills) }}
+            </p>
+
+        </div>
+
+    {% endfor %}
+
+</div>
+
+</body>
+
+</html>
