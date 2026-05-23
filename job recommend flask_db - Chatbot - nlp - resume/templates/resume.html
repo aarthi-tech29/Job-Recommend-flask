@@ -1,0 +1,179 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Resume Analyzer</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<!-- =========================================
+     NAVBAR
+========================================= -->
+
+<nav class="navbar">
+
+    <div class="logo">
+
+        AI Job Portal
+
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/">Home</a>
+
+        <a href="/post-job">Post Job</a>
+
+        <a href="/resume">Resume Analyzer</a>
+
+    </div>
+
+</nav>
+
+<!-- =========================================
+     CONTAINER
+========================================= -->
+
+<div class="container">
+
+    <h2>AI Resume Analyzer</h2>
+
+    <!-- =====================================
+         UPLOAD FORM
+    ===================================== -->
+
+    <form method="POST"
+          enctype="multipart/form-data"
+          class="job-form">
+
+        <input type="file"
+               name="resume"
+               accept=".pdf"
+               required>
+
+        <button type="submit">
+
+            Analyze Resume
+
+        </button>
+
+    </form>
+
+    <!-- =====================================
+         EXTRACTED DETAILS
+    ===================================== -->
+
+    {% if extracted %}
+
+    <div class="card">
+
+        <h3>Resume Analysis</h3>
+
+        <p>
+
+            <b>Predicted Role:</b>
+
+            {{ extracted.role }}
+
+        </p>
+
+        <p>
+
+            <b>Experience:</b>
+
+            {{ extracted.experience }} years
+
+        </p>
+
+        <p>
+
+            <b>Skills:</b>
+
+            {{ ", ".join(extracted.skills) }}
+
+        </p>
+
+    </div>
+
+    {% endif %}
+
+    <!-- =====================================
+         JOB RECOMMENDATIONS
+    ===================================== -->
+
+    {% if jobs %}
+
+    <h2>Recommended Jobs</h2>
+
+    <div class="job-grid">
+
+        {% for job in jobs %}
+
+        <div class="card">
+
+            <h3>{{ job.company }}</h3>
+
+            <p>
+
+                <b>Role:</b>
+
+                {{ job.role }}
+
+            </p>
+
+            <p>
+
+                <b>Experience:</b>
+
+                {{ job.experience }} years
+
+            </p>
+
+            <p>
+
+                <b>Location:</b>
+
+                {{ job.location }}
+
+            </p>
+
+            <p>
+
+                <b>Level:</b>
+
+                {{ job.job_level }}
+
+            </p>
+
+            <p>
+
+                <b>Match:</b>
+
+                {{ job.score }}%
+
+            </p>
+
+            <span class="posted">
+
+                {{ job.posted }}
+
+            </span>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+</html>
