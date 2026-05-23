@@ -1,3 +1,5 @@
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
 from flask import Flask, render_template, request, jsonify, redirect, url_for, session
 import spacy
 import sqlite3
@@ -681,7 +683,110 @@ def job_portal(user_role, user_skills, user_exp, user_location):
             related_jobs.append(job_data)
 
     return primary_jobs, related_jobs
+    # =====================================================
+    # ML JOB RECOMMENDATION
+    # =====================================================
 
+def ml_job_recommendation(user_skills):
+
+    conn = sqlite3.connect("jobs.db")
+    cursor = conn.cursor()
+
+    cursor.execute("""
+    SELECT
+        company,
+        role,
+        skills,
+        experience,
+        location,
+        level,
+        posted_date
+    FROM jobs
+    """)
+
+    jobs = cursor.fetchall()
+
+    conn.close()
+
+    # -----------------------------------
+    # JOB SKILLS
+    # -----------------------------------
+
+    job_skill_texts = []
+
+    for job in jobs:
+
+        job_skill_texts.append(job[2])
+
+    # -----------------------------------
+    # USER SKILLS
+    # -----------------------------------
+
+    user_text = " ".join(user_skills)
+
+    # -----------------------------------
+    # TF-IDF
+    # -----------------------------------
+
+    documents = [user_text] + job_skill_texts
+
+    vectorizer = TfidfVectorizer()
+
+    tfidf_matrix = vectorizer.fit_transform(documents)
+
+    # -----------------------------------
+    # COSINE SIMILARITY
+    # -----------------------------------
+
+    similarity_scores = cosine_similarity(
+        tfidf_matrix[0:1],
+        tfidf_matrix[1:]
+    )
+
+    similarity_scores = similarity_scores.flatten()
+
+    # -----------------------------------
+    # STORE RESULTS
+    # -----------------------------------
+
+    recommendations = []
+
+    for i, score in enumerate(similarity_scores):
+
+        company, role, skills, exp, loc, level, posted = jobs[i]
+        # -----------------------------------
+        # REMOVE NOISY DATA
+        # -----------------------------------
+
+        reference_skills = role_skill_reference.get(role, set())
+
+        job_skills_set = set(skills.split(","))
+
+        if len(job_skills_set.intersection(reference_skills)) == 0:
+            continue
+        recommendations.append({
+
+            "company": company,
+            "role": role,
+            "skills": skills,
+            "experience": exp,
+            "location": loc,
+            "level": level,
+            "posted_date": posted,
+            "score": round(score * 100, 2)
+
+        })
+
+    # -----------------------------------
+    # SORT HIGH TO LOW
+    # -----------------------------------
+
+    recommendations.sort(
+        key=lambda x: x["score"],
+        reverse=True
+    )
+
+    return recommendations
 
 # =====================================================
 # HOME
@@ -923,6 +1028,77 @@ def chat():
         save_chat(message, reply)
         return jsonify({"reply": reply})
     # =====================================================
+    # LATEST JOBS
+    # =====================================================
+
+    if "latest" in message or message == "jobs" or message == "show jobs":
+
+        conn = sqlite3.connect("jobs.db")
+        cursor = conn.cursor()
+
+        cursor.execute("""
+            SELECT
+                company,
+                role,
+                skills,
+                experience,
+                location,
+                level,
+                posted_date
+            FROM jobs
+            ORDER BY posted_date DESC
+        """)
+
+        jobs = cursor.fetchall()
+        conn.close()
+
+        html = "<h3>Latest Jobs</h3>"
+
+        for job in jobs:
+
+            posted_date = datetime.strptime(job[6], "%Y-%m-%d")
+            six_months_ago = datetime.now() - timedelta(days=180)
+
+            if posted_date < six_months_ago:
+                continue
+
+            role = job[1]
+            skills_set = set(job[2].split(","))
+            if len(skills_set) == 0:
+                continue
+
+            score = 100
+
+            html += f"""
+            <div class='chat-job-card'>
+
+                <h4>{job[0]}</h4>
+
+                <p><b>Role:</b> {job[1]}</p>
+
+                <p><b>Skills:</b> {job[2]}</p>
+
+                <p><b>Match:</b> {score:.2f}%</p>
+
+                <p><b>Date:</b> {job[6]}</p>
+
+                <p><b>Experience:</b> {job[3]} years</p>
+
+                <p><b>Location:</b> {job[4]}</p>
+
+                <p><b>Level:</b> {job[5]}</p>
+
+                <span class='posted'>
+                {time_ago(job[6])}
+                </span>
+
+            </div>
+            """
+
+        save_chat(message, html)
+        return jsonify({"reply": html})
+
+    # =====================================================
     # NLP JOB SEARCH
     # =====================================================
 
@@ -1129,72 +1305,7 @@ def chat():
             save_chat(message, reply)
             return jsonify({"reply": reply})
 
-    # =====================================================
-    # LATEST JOBS
-    # =====================================================
-
-    if "latest" in message or message == "jobs" or message == "show jobs":
-
-        conn = sqlite3.connect("jobs.db")
-        cursor = conn.cursor()
-
-        cursor.execute("""
-            SELECT
-                company,
-                role,
-                skills,
-                posted_date,
-                experience,
-                location,
-                level
-            FROM jobs
-            ORDER BY posted_date DESC
-        """)
-
-        jobs = cursor.fetchall()
-        conn.close()
-
-        html = "<h3>Latest Jobs</h3>"
-
-        for job in jobs:
-
-            posted_date = datetime.strptime(job[3], "%Y-%m-%d")
-            six_months_ago = datetime.now() - timedelta(days=180)
-
-            if posted_date < six_months_ago:
-                continue
-
-            role = job[1]
-            skills_set = set(job[2].split(","))
-            reference_skills = role_skill_reference.get(role, set())
-
-            if len(skills_set) == 0:
-                continue
-
-            common_role = skills_set.intersection(reference_skills)
-
-            if len(common_role) == 0:
-                continue
-
-            score = (len(common_role) / len(skills_set)) * 100
-
-            html += f"""
-            <div class='chat-job-card'>
-                <h4>{job[0]}</h4>
-                <p><b>Role:</b> {job[1]}</p>
-                <p><b>Skills:</b> {job[2]}</p>
-                <p><b>Match:</b> {score:.2f}%</p>
-                <p><b>Date:</b> {job[3]}</p>
-                <p><b>Experience:</b> {job[4]} years</p>
-                <p><b>Location:</b> {job[5]}</p>
-                <p><b>Level:</b> {job[6]}</p>
-                <span class='posted'>{time_ago(job[3])}</span>
-            </div>
-            """
-
-        save_chat(message, html)
-        return jsonify({"reply": html})
-
+    
     # =====================================================
     # SKILLS
     # =====================================================
@@ -1261,18 +1372,202 @@ def chat():
     # RECOMMEND
     # =====================================================
 
-    if "recommend" in message:
+    if (
+        message == "recommendation"
+        or message == "recommendations"
+        or message == "recommend"
+        or message == "recommend jobs"
+    ):
 
         reply = """
-        <div class='chat-job-card'>
-        Tell me your role and skills 😊<br><br>
-        Example:<br><br>
-        role - Data Scientist, skill - python
-        </div>
-        """
 
+        <div class='chat-job-card'>
+
+            <h3>Select Recommendation Type</h3>
+
+            <div class='recommend-buttons'>
+
+                <button onclick="sendSuggestion('python recommendation')">
+                Python Recommendation
+                </button>
+
+                <button onclick="sendSuggestion('java recommendation')">
+                Java Recommendation
+                </button>
+
+                <button onclick="sendSuggestion('data scientist recommendation')">
+                Data Scientist Recommendation
+                </button>
+
+                <button onclick="sendSuggestion('data engineer recommendation')">
+                Data Engineer Recommendation
+                </button>
+
+                <button onclick="sendSuggestion('data analyst recommendation')">
+                Data Analyst Recommendation
+                </button>
+
+                <button onclick="sendSuggestion('ml recommendation')">
+                ML Recommendation
+                </button>
+
+            </div>
+
+            <br>
+
+            <p><b>OR</b></p>
+
+            <p>
+            role - Data Scientist,
+            skill - python
+            </p>
+
+        </div>
+
+        """
         save_chat(message, reply)
+
         return jsonify({"reply": reply})
+
+
+    # =====================================================
+    # ML RECOMMENDATION
+    # =====================================================
+
+    if "recommendation" in message:
+
+        skills = []
+
+        # -----------------------------------
+        # PYTHON
+        # -----------------------------------
+
+        if "python" in message:
+
+            skills = [
+                "python",
+                "flask",
+                "django",
+                "sql"
+            ]
+
+        # -----------------------------------
+        # JAVA
+        # -----------------------------------
+
+        elif "java" in message:
+
+            skills = [
+                "java",
+                "spring",
+                "hibernate",
+                "sql"
+            ]
+
+        # -----------------------------------
+        # DATA SCIENTIST
+        # -----------------------------------
+
+        elif "data scientist" in message:
+
+            skills = [
+                "python",
+                "ml",
+                "pandas"
+            ]
+
+        # -----------------------------------
+        # DATA ENGINEER
+        # -----------------------------------
+
+        elif "data engineer" in message:
+
+            skills = [
+                "python",
+                "sql",
+                "spark",
+                "aws"
+            ]
+
+        # -----------------------------------
+        # DATA ANALYST
+        # -----------------------------------
+
+        elif "data analyst" in message:
+
+            skills = [
+                "excel",
+                "sql",
+                "power bi"
+            ]
+
+        # -----------------------------------
+        # ML ENGINEER
+        # -----------------------------------
+
+        elif "ml" in message:
+
+            skills = [
+                "python",
+                "tensorflow",
+                "ml"
+            ]
+
+        # -----------------------------------
+        # DEFAULT
+        # -----------------------------------
+
+        else:
+
+            skills = [
+                "python",
+                "sql"
+            ]
+
+        # -----------------------------------
+        # ML RECOMMENDATION
+        # -----------------------------------
+
+        jobs = ml_job_recommendation(skills)
+
+        html = f"<h3>{skills[0].upper()} Recommended Jobs</h3>"
+
+        for job in jobs[:5]:
+
+            html += f"""
+
+            <div class='chat-job-card'>
+
+                <h4>{job['company']}</h4>
+
+                <p><b>Role:</b>
+                {job['role']}</p>
+
+                <p><b>Skills:</b>
+                {job['skills']}</p>
+
+                <p><b>Experience:</b>
+                {job['experience']} years</p>
+
+                <p><b>Location:</b>
+                {job['location']}</p>
+
+                <p><b>Level:</b>
+                {job['level']}</p>
+
+                <p><b>Similarity:</b>
+                {job['score']}%</p>
+
+                <span class='posted'>
+                {time_ago(job['posted_date'])}
+                </span>
+
+            </div>
+            """
+
+        save_chat(message, html)
+
+        return jsonify({"reply": html})
 
     # =====================================================
     # OTHER QUESTIONS

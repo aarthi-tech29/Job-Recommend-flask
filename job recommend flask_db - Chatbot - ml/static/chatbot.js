@@ -45,6 +45,13 @@ maximizeChat.onclick = () => {
     );
 };
 
+function sendSuggestion(text) {
+
+    userInput.value = text;
+
+    sendMessage();
+}
+
 // SEND MESSAGE
 
 async function sendMessage() {
