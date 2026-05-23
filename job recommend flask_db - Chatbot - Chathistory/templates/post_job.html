@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>Post Job</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+</head>
+
+<body>
+
+<nav class="navbar">
+
+    <div class="logo">
+
+        AI Job Portal
+
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/">Home</a>
+
+        <a href="/post-job">Post Job</a>
+
+    </div>
+
+</nav>
+
+<div class="container">
+
+    <h1>Post New Job</h1>
+
+    <a href="/"
+       class="back-btn">
+
+       ← Back To Home
+
+    </a>
+
+    <form method="POST"
+          class="job-form">
+
+        <input type="text"
+               name="company"
+               placeholder="Company Name"
+               required>
+
+        <input type="text"
+               name="role"
+               placeholder="Role"
+               required>
+
+        <input type="text"
+               name="skills"
+               placeholder="python, flask, django"
+               required>
+
+        <button type="submit">
+
+            Post Job
+
+        </button>
+
+    </form>
+
+    {% if message %}
+
+    <div class="success-message">
+
+        {{ message }}
+
+    </div>
+
+    {% endif %}
+
+    {% if latest_job %}
+
+    <h2>Latest Posted Job</h2>
+
+    <div class="card">
+
+        <h3>{{ latest_job.company }}</h3>
+
+        <p>
+
+            <b>Role:</b>
+
+            {{ latest_job.role }}
+
+        </p>
+
+        <p>
+
+            <b>Skills:</b>
+
+            {{ latest_job.skills }}
+
+        </p>
+
+        <div class="job-date">
+
+            <span class="posted">
+
+                {{ latest_job.posted }}
+
+            </span>
+
+            <span class="full-date">
+
+                {{ latest_job.posted_date }}
+
+            </span>
+
+        </div>
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+</body>
+
+</html>

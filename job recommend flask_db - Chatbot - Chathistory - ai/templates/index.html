@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+
+    <title>AI Job Portal</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='style.css') }}">
+
+    <link rel="stylesheet"
+          href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+
+</head>
+
+<body>
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<nav class="navbar">
+
+    <div class="logo">
+
+        AI Job Portal
+
+    </div>
+
+    <div class="nav-links">
+
+        <a href="/">Home</a>
+
+        <a href="/post-job">Post Job</a>
+
+    </div>
+
+</nav>
+
+<!-- =====================================================
+     HERO
+===================================================== -->
+
+<section class="hero">
+
+    <h1>Find Your Dream Job</h1>
+
+    <p>
+
+        AI Powered Job Recommendation System
+
+    </p>
+
+</section>
+
+<!-- =====================================================
+     MAIN CONTAINER
+===================================================== -->
+
+<div class="container">
+
+    <!-- =====================================================
+         FORM
+    ===================================================== -->
+
+    <form method="POST"
+          class="job-form">
+        <h4>Enter Role</h4>
+        <input type="text"
+               name="role"
+               placeholder="Example: Data Scientist"
+               required>
+        <h4>Enter Skills (comma separated)</h4>
+        <input type="text"
+               name="skills"
+               placeholder="Example: python, sql, machine learning"
+               required>
+
+        <button type="submit">
+
+            Find Jobs
+
+        </button>
+
+    </form>
+
+    <!-- =====================================================
+         PRIMARY JOBS
+    ===================================================== -->
+
+    {% if primary_jobs %}
+
+    <h2>Primary Jobs</h2>
+
+    <div class="job-grid">
+
+        {% for job in primary_jobs %}
+
+        <div class="card">
+
+            <h3>{{ job.company }}</h3>
+
+            <p>
+
+                <b>Role:</b>
+
+                {{ job.role }}
+
+            </p>
+
+            <p>
+
+                <b>Matched Skills:</b>
+
+                {{ ", ".join(job.matched_skills) }}
+
+            </p>
+
+            <p>
+
+                <b>Match:</b>
+
+                {{ job.score }}%
+
+            </p>
+
+            <p>
+
+                <b>Level:</b>
+
+                {{ job.level }}
+
+            </p>
+
+            <div class="job-date">
+
+                <span class="posted">
+
+                    {{ job.posted }}
+
+                </span>
+
+                <span class="full-date">
+
+                    {{ job.posted_date }}
+
+                </span>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% endif %}
+
+    <!-- =====================================================
+         RELATED JOBS
+    ===================================================== -->
+
+    {% if related_jobs %}
+
+    <h2>Related Jobs</h2>
+
+    <div class="job-grid">
+
+        {% for job in related_jobs %}
+
+        <div class="card">
+
+            <h3>{{ job.company }}</h3>
+
+            <p>
+
+                <b>Role:</b>
+
+                {{ job.role }}
+
+            </p>
+
+            <p>
+
+                <b>Matched Skills:</b>
+
+                {{ ", ".join(job.matched_skills) }}
+
+            </p>
+
+            <p>
+
+                <b>Match:</b>
+
+                {{ job.score }}%
+
+            </p>
+
+            <p>
+
+                <b>Level:</b>
+
+                {{ job.level }}
+
+            </p>
+
+            <div class="job-date">
+
+                <span class="posted">
+
+                    {{ job.posted }}
+
+                </span>
+
+                <span class="full-date">
+
+                    {{ job.posted_date }}
+
+                </span>
+
+            </div>
+
+        </div>
+
+        {% endfor %}
+
+    </div>
+
+    {% endif %}
+
+</div>
+
+<!-- =====================================================
+     CHAT ICON
+===================================================== -->
+
+<div class="chat-icon"
+     id="chatIcon">
+
+    <i class="fa-solid fa-comments"></i>
+
+</div>
+
+<!-- =====================================================
+     CHATBOT
+===================================================== -->
+
+<div class="chat-container"
+     id="chatContainer">
+
+    <!-- HEADER -->
+
+    <div class="chat-header">
+
+    <h3>AI Job Assistant</h3>
+
+    <div class="chat-header-right">
+
+        <div class="chat-actions">
+
+            <button id="maximizeChat">
+                ⛶
+            </button>
+
+            <button id="closeChat">
+                ✖
+            </button>
+
+        </div>
+
+    </div>
+
+</div>
+
+    <!-- BODY -->
+
+    <div class="chat-body"
+         id="chatBody">
+
+        <div class="bot-message">
+
+            Hello 👋<br><br>
+
+            Ask me about:<br><br>
+
+            • Latest jobs<br>
+            • Skills<br>
+            • Careers<br>
+            • Hiring<br>
+            • Recommendations
+
+        </div>
+
+    </div>
+
+    <!-- FOOTER -->
+
+    <div class="chat-footer">
+
+        <input type="text"
+               id="userInput"
+               placeholder="role - Data Scientist, skill - python">
+
+        <button onclick="sendMessage()">
+
+            Send
+
+        </button>
+
+    </div>
+
+</div>
+
+<script src="{{ url_for('static', filename='chatbot.js') }}"></script>
+
+</body>
+
+</html>
