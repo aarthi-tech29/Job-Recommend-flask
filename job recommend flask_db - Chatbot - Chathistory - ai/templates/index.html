@@ -75,7 +75,33 @@
                name="skills"
                placeholder="Example: python, sql, machine learning"
                required>
+            <h4>Experience (in years)</h4>
+            <input
+                type="number"
+                name="experience"
+                placeholder="Experience (0-10 years)"
+                min="0"
+                max="10"
+                required
+            >
+            <h4>Preferred Location</h4>
+            <select name="location" required>
 
+            <option value="">Select Location</option>
+
+            <option value="chennai">
+                Chennai
+            </option>
+
+            <option value="bengaluru">
+                Bengaluru
+            </option>
+
+            <option value="hyderabad">
+                Hyderabad
+            </option>
+
+        </select>
         <button type="submit">
 
             Find Jobs
@@ -128,7 +154,7 @@
 
                 <b>Level:</b>
 
-                {{ job.level }}
+                {{ job.job_level }}
 
             </p>
 
@@ -200,7 +226,7 @@
 
                 <b>Level:</b>
 
-                {{ job.level }}
+                {{ job.job_level }}
 
             </p>
 

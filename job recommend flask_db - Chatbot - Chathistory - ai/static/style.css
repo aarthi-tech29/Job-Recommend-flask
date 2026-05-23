@@ -86,7 +86,22 @@ body {
 /* =====================================================
    FORM
 ===================================================== */
+.job-form select {
 
+    width: 100%;
+
+    padding: 14px;
+
+    margin-bottom: 15px;
+
+    border-radius: 10px;
+
+    border: 1px solid #ccc;
+
+    font-size: 15px;
+
+    background: white;
+}
 .job-form {
 
     background: white;
