@@ -1156,6 +1156,12 @@ def login():
             return "Invalid Login"
 
     return render_template("login.html")
+@app.route("/logout")
+def logout():
+
+    session.clear()
+
+    return redirect(url_for("login"))
 # =====================================================
 # HOME
 # =====================================================
@@ -1163,10 +1169,10 @@ def login():
 
 @app.route("/", methods=["GET", "POST"])
 def home():
-    session.get("plan")
+    
     if "plan" not in session:
 
-        session["plan"] = "premium"
+        return redirect(url_for("login"))
     primary_jobs = []
     related_jobs = []
     missing_skills = []
