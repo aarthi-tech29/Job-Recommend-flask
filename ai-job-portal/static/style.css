@@ -815,3 +815,45 @@ body {
     background: #dc2626;
 
 }
+.apply-btn {
+
+    width: 100%;
+
+    margin-top: 15px;
+
+    background: linear-gradient(
+        135deg,
+        #2563eb,
+        #1d4ed8
+    );
+
+    color: white;
+
+    border: none;
+
+    padding: 12px;
+
+    border-radius: 10px;
+
+    cursor: pointer;
+
+    font-size: 15px;
+
+    font-weight: 600;
+
+    transition: 0.3s;
+}
+
+.apply-btn:hover {
+
+    background: linear-gradient(
+        135deg,
+        #1d4ed8,
+        #1e40af
+    );
+
+    transform: translateY(-2px);
+
+    box-shadow:
+        0 5px 15px rgba(37,99,235,0.3);
+}
