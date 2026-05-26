@@ -1,7 +1,0 @@
-flask
-spacy
-scikit-learn
-PyPDF2
-groq
-matplotlib
-gunicorn
