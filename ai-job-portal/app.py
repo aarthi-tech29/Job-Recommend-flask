@@ -9,9 +9,10 @@ import PyPDF2
 import re
 from groq import Groq
 import matplotlib.pyplot as plt
+from dotenv import load_dotenv
 
 nlp = spacy.load("en_core_web_sm")
-
+load_dotenv()
 client = Groq(
     api_key=os.getenv("GROQ_API_KEY")
 )
